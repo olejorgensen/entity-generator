@@ -1,5 +1,5 @@
 {
-  "name": "angular-crud-app",
+  "name": "entity-generator",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
