@@ -4,6 +4,7 @@ import { Entity } from '../entity';
 @Component({
   selector: 'app-sql-output',
   templateUrl: './sql-output.component.html',
+  styleUrls: [ './sql-output.component.css' ]
 })
 export class SqlOutputComponent implements OnChanges {
   @Input() entity: Entity | null = null;

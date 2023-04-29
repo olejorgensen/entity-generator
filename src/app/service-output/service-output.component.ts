@@ -11,16 +11,59 @@ export class ServiceOutputComponent {
   output: string = '';
 
   ngOnChanges() {
-    this.output = this.generateOutput();
+    this.generateOutput();
   }
 
-  generateOutput(): string {
-    if (this.entity == null) return '';
-    var result = `CREATE TABLE ${this.entity.name} (\n`;
-    result += this.entity.properties
-      .map((prop) => `  ${prop.name} ${prop.type}`)
-      .join(',\n');
-    result += '\n);';
-    return result;
+  generateOutput(): void {
+    if (!this.entity) {
+      this.output = 'Please provide an entity.';
+      return;
+    }
+
+    const className = `${this.entity.name}Service`;
+    const modelClassName = this.entity.name;
+    const propertyDeclarations = this.entity.properties
+      .map((prop) => `${prop.type} ${prop.name};`)
+      .join('\n');
+
+    this.output = `
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class ${className}
+{
+    private List<${modelClassName}> _entities = new List<${modelClassName}>();
+
+    public IEnumerable<${modelClassName}> GetAll()
+    {
+        return _entities;
+    }
+
+    public IEnumerable<${modelClassName}> Filter(Func<${modelClassName}, bool> predicate)
+    {
+        return _entities.Where(predicate);
+    }
+
+    public void Add(${modelClassName} entity)
+    {
+        _entities.Add(entity);
+    }
+
+    public void Update(${modelClassName} entity)
+    {
+        int index = _entities.FindIndex(e => e.Id == entity.Id);
+        if (index != -1)
+        {
+            _entities[index] = entity;
+        }
+    }
+
+    public void Delete(int id)
+    {
+        _entities.RemoveAll(e => e.Id == id);
+    }
+}
+`;
   }
 }

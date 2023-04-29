@@ -11,16 +11,38 @@ export class ViewOutputComponent {
   output: string = '';
 
   ngOnChanges() {
-    this.output = this.generateOutput();
+    this.generateOutput();
   }
 
-  generateOutput(): string {
-    if (this.entity == null) return '';
-    var result = `CREATE TABLE ${this.entity.name} (\n`;
-    result += this.entity.properties
-      .map((prop) => `  ${prop.name} ${prop.type}`)
-      .join(',\n');
-    result += '\n);';
-    return result;
+  generateOutput(): void {
+    if (!this.entity) {
+      this.output = 'Please provide an entity.';
+      return;
+    }
+
+    const className = `${this.entity.name}View`;
+    const viewModelClassName = `${this.entity.name}ViewModel`;
+    const modelClassName = this.entity.name;
+
+    const propertyBindings = this.entity.properties
+      .map((prop) => `<TextBlock Text="{Binding ${prop.name}}" />`)
+      .join('\n        ');
+
+    this.output = `
+<UserControl x:Class="${className}"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="400">
+    <UserControl.DataContext>
+        <${viewModelClassName} />
+    </UserControl.DataContext>
+    <Grid>
+        ${propertyBindings}
+    </Grid>
+</UserControl>
+`;
   }
 }
